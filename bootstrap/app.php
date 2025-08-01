@@ -16,6 +16,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin' => \App\Http\Middleware\AdminMiddleware::class,
             'auth'  => \Illuminate\Auth\Middleware\Authenticate::class, 
             'jwt.auth' => \Tymon\JWTAuth\Http\Middleware\Authenticate::class,
+            'teacher_or_admin' => \App\Http\Middleware\TeacherOrAdminMiddleware::class,
         ]);
 
     })
