@@ -59,8 +59,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return [];
     }
-    public function getAuthIdentifierName()
+    /*public function getAuthIdentifierName()
     {
         return 'username';
-    }
+    }*/
 }

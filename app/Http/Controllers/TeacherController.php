@@ -14,7 +14,8 @@ class TeacherController extends Controller
      */
     public function index()
     {
-        //
+        $teachers=Teacher::paginate(10);
+        return response()->json($teachers);
     }
 
     /**
@@ -43,7 +44,7 @@ class TeacherController extends Controller
             'status' => 'required|in:active,inactive',
           
         ]);
-        dd($validatedData);
+       
 
         $user=User::create([
             'username'=>$validatedData['username'],
@@ -52,6 +53,7 @@ class TeacherController extends Controller
             'role'=>'teacher'
 
         ]);
+
         $teacher=Teacher::create([
             'first_name'=>$validatedData['first_name'],
             'last_name'=>$validatedData['last_name'],
@@ -76,7 +78,12 @@ class TeacherController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $teacher=Teacher::find($id);
+        if (!$teacher){
+            return response()->json(['message' => 'Teacher not found'], 404);
+        }
+        return response()->json($teacher);
+
     }
 
     /**
@@ -92,7 +99,35 @@ class TeacherController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $teacher=Teacher::find($id);
+        if(!$teacher){
+            return response()->json(['message'=>'Teacher not found'],404);
+        }
+        $request->validate([
+            'first_name'=>'sometimes|string|min:2',
+            'last_name'=>'string|nullable',
+            'email'=> 'sometimes|email|unique:teachers,email,'.$id,
+            'phoneno'=>'sometimes|string|digits:10',
+            'subject'=>'sometimes|string|',
+            'emp_id' => 'sometimes|string|unique:teachers,emp_id,'.$id,
+            'date_of_join' => 'sometimes|date|before_or_equal:today',
+            'status' => 'sometimes|in:active,inactive',
+        ]);
+        if ($request->has('email')) {
+            $teacher->email = $request->email;
+            if ($teacher->user_id) {
+                $user = User::find($teacher->user_id);
+                if ($user) {
+                    $user->email = $request->email;
+                    $user->save();
+                }
+            }
+    }
+        $teacher->update($request->except('email'));
+        return response()->json([
+            'message' => 'Teacher updated successfully',
+            'teacher' => $teacher
+        ]);
     }
 
     /**
@@ -100,6 +135,18 @@ class TeacherController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $teacher = Teacher::find($id);
+        if (!$teacher) {
+            return response()->json(['message' => 'Teacher not found'], 404);
+        }
+        if ($teacher->user_id) {
+            $user = User::find($teacher->user_id);
+           if ($user) {
+               $user->delete();
+            }
+        }
+        $teacher->delete();
+       return response()->json(['message' => 'Teacher deleted successfully']);
     }
+
 }
