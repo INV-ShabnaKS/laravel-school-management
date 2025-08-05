@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Teacher;
 use App\Models\Student;
+use Illuminate\Support\Facades\Gate;
+
 
 
 class StudentController extends Controller
@@ -16,11 +18,9 @@ class StudentController extends Controller
     public function index()
     {
         $user = auth('api')->user();
-
         if ($user->role === 'admin') {
             return Student::paginate(10);
         }
-
         if ($user->role === 'teacher') {
             $teacher = Teacher::where('user_id', $user->id)->first();
             if (!$teacher) {
@@ -28,9 +28,16 @@ class StudentController extends Controller
             }
             return Student::where('teacher_id', $teacher->id)->paginate(10);
         }
-
+        if ($user->role === 'student') {
+            $student = Student::where('user_id', $user->id)->first();
+            if (!$student) {
+                return response()->json(['message' => 'Student record not found'], 404);
+            }
+            return response()->json($student);
+        }
         return response()->json(['message' => 'Unauthorized'], 403);
     }
+
 
 
     /**
@@ -166,5 +173,7 @@ class StudentController extends Controller
         $student->delete();
         return response()->json(['message' => 'Student deleted successfully']);
 
+
+    
     }
 }
