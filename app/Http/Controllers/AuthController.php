@@ -17,10 +17,12 @@ class AuthController extends Controller
         if (! $token=auth('api')->attempt($credentials)){
             return response()->json(['error'=>'Invalid username or password'], 401);
         }
+        $user = auth('api')->user();
         return response()->json([
             'token'=>$token,
             'token_type'=>'bearer',
-            'expires_in'=>auth('api')->factory()->getTTL()
+            'expires_in'=>auth('api')->factory()->getTTL(),
+            'role' => $user->role
         ]);
 
     }
