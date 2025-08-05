@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class TeacherOrAdminMiddleware
+class ForceJsonResponse
 {
     /**
      * Handle an incoming request.
@@ -15,13 +15,9 @@ class TeacherOrAdminMiddleware
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!auth('api')->check()) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+        if ($request->is('api/*')) {
+            $request->headers->set('Accept', 'application/json');
         }
-        if (!in_array(auth('api')->user()->role, ['teacher', 'admin'])) {
-            return response()->json(['error' => 'Unauthorized: Only teachers or admins allowed'], 403);
-        }
-
         return $next($request);
     }
 }

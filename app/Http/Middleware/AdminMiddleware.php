@@ -19,7 +19,7 @@ class AdminMiddleware
             return response()->json(['error' => 'Unauthorized'], 401);
         }
         if (auth('api')->user()->role != 'admin'){
-            return response()->json(['error'=>'Unauthorized:Only admin can access teachers'],403);
+            return response()->json(['error'=>'Unauthorized:Only admin is authorized'],403);
         }
         return $next($request);
     }
